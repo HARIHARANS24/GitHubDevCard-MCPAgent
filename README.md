@@ -196,3 +196,13 @@ github-card-generator/
 ├── .env.example
 └── README.md
 ```
+---
+
+## 🌍 Live Services
+
+| Service | URL |
+|---------|-----|
+| Frontend | [Open App](https://github-card-frontend-833959947283.us-central1.run.app) |
+| Backend | [Backend API](https://github-card-backend-833959947283.us-central1.run.app) |
+| API Docs | [Swagger Docs](https://github-card-backend-833959947283.us-central1.run.app/docs) |
+| Health Check | [Health Endpoint](https://github-card-backend-833959947283.us-central1.run.app/health) |
