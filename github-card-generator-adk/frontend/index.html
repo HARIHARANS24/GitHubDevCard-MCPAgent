@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Dev Card Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0d1117;
+    --surface2: #161b22;
+    --border: #21262d;
+    --border-bright: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #f78166;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --text-dim: #484f58;
+    --glow: rgba(88, 166, 255, 0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid background ─────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Glow orbs ──────────────────────────────────────── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 400px; height: 400px;
+    background: rgba(88,166,255,0.08);
+    top: -100px; left: -100px;
+    animation: orbFloat 12s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 300px; height: 300px;
+    background: rgba(63,185,80,0.06);
+    bottom: -80px; right: -80px;
+    animation: orbFloat 16s ease-in-out infinite reverse;
+  }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 20px); }
+  }
+
+  /* ── Main layout ────────────────────────────────────── */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 60px 20px 80px;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: slideDown 0.7s ease;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid rgba(88,166,255,0.3);
+    background: rgba(88,166,255,0.08);
+    border-radius: 20px;
+    padding: 5px 14px;
+    margin-bottom: 20px;
+    letter-spacing: 0.08em;
+  }
+
+  .header-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(28px, 6vw, 42px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text) 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── Input section ──────────────────────────────────── */
+  .input-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 32px;
+    animation: slideUp 0.7s ease 0.1s both;
+    transition: border-color 0.3s;
+  }
+
+  .input-section:focus-within {
+    border-color: rgba(88,166,255,0.4);
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.06);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .input-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .input-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .at-prefix {
+    position: absolute;
+    left: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: var(--accent);
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    padding: 12px 14px 12px 32px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input[type="text"]::placeholder {
+    color: var(--text-dim);
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.1);
+  }
+
+  /* ── Generate button ────────────────────────────────── */
+  .btn-generate {
+    background: var(--accent);
+    color: #0d1117;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 22px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-generate::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.15);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .btn-generate:hover::before { transform: translateX(0); }
+  .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(88,166,255,0.3); }
+  .btn-generate:active { transform: translateY(0); }
+  .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-generate .btn-icon { margin-right: 6px; }
+
+  /* ── Quick examples ─────────────────────────────────── */
+  .examples {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .examples-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .example-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .example-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(88,166,255,0.06);
+  }
+
+  /* ── Loading state ──────────────────────────────────── */
+  .loading-state {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .loading-state.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .loading-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    background: rgba(88,166,255,0.05);
+    border: 1px solid rgba(88,166,255,0.15);
+    border-radius: 10px;
+  }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(88,166,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .loading-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .loading-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  .loading-step:nth-child(2) { animation-delay: 0.2s; }
+  .loading-step:nth-child(3) { animation-delay: 0.4s; }
+  .loading-step:nth-child(4) { animation-delay: 0.6s; }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+
+  .step-icon { font-size: 14px; }
+
+  /* ── Result state ───────────────────────────────────── */
+  .result-state {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .result-state.active { display: block; }
+
+  .result-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .result-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .result-label::before {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    background: rgba(63,185,80,0.15);
+    border-radius: 50%;
+    font-size: 10px;
+    color: var(--accent2);
+  }
+
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-action {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+  }
+
+  .btn-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(88,166,255,0.06);
+  }
+
+  .btn-action.copied {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(63,185,80,0.08);
+  }
+
+  .card-wrapper {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    animation: cardReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes cardReveal {
+    from { opacity: 0; transform: scale(0.95) translateY(16px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .card-wrapper iframe {
+    width: 100%;
+    border: none;
+    display: block;
+    min-height: 580px;
+    background: transparent;
+  }
+
+  /* ── Error state ────────────────────────────────────── */
+  .error-state {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .error-state.active { display: block; }
+
+  .error-box {
+    background: rgba(247,129,102,0.07);
+    border: 1px solid rgba(247,129,102,0.3);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .error-icon { font-size: 20px; flex-shrink: 0; }
+
+  .error-content {}
+
+  .error-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent3);
+    margin-bottom: 4px;
+  }
+
+  .error-message {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── Footer ─────────────────────────────────────────── */
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    animation: slideUp 0.7s ease 0.3s both;
+  }
+
+  .footer-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  .footer-text a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer-text a:hover { color: var(--accent); }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 480px) {
+    .container { padding: 40px 16px 60px; }
+    .input-row { flex-direction: column; }
+    .btn-generate { width: 100%; justify-content: center; }
+    .result-toolbar { flex-direction: column; align-items: flex-start; }
+    .toolbar-actions { width: 100%; }
+    .btn-action { flex: 1; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">POWERED BY GEMINI + MCP</div>
+    <h1>GitHub Dev Card<br>Generator</h1>
+    <p class="subtitle">Enter any public GitHub username to generate<br>a beautiful, AI-powered developer card.</p>
+  </div>
+
+  <!-- Input Section -->
+  <div class="input-section">
+    <label class="input-label" for="username-input">GitHub Username</label>
+    <div class="input-row">
+      <div class="input-wrapper">
+        <span class="at-prefix">@</span>
+        <input
+          type="text"
+          id="username-input"
+          placeholder="torvalds"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        >
+      </div>
+      <button class="btn-generate" id="generate-btn" onclick="generateCard()">
+        <span class="btn-icon">⚡</span> Generate
+      </button>
+    </div>
+    <div class="examples">
+      <span class="examples-label">TRY:</span>
+      <span class="example-chip" onclick="quickFill('torvalds')">torvalds</span>
+      <span class="example-chip" onclick="quickFill('gaearon')">gaearon</span>
+      <span class="example-chip" onclick="quickFill('yyx990803')">yyx990803</span>
+      <span class="example-chip" onclick="quickFill('sindresorhus')">sindresorhus</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" id="loading-state">
+    <div class="loading-header">
+      <div class="spinner"></div>
+      <span class="loading-text" id="loading-text">Fetching GitHub profile...</span>
+    </div>
+    <div class="loading-steps">
+      <div class="loading-step">
+        <span class="step-icon">🔍</span>
+        <span>Scraping GitHub profile & repositories</span>
+      </div>
+      <div class="loading-step">
+        <span class="step-icon">🧠</span>
+        <span>Analyzing personality with Gemini AI</span>
+      </div>
+      <div class="loading-step">
+        <span class="step-icon">🎨</span>
+        <span>Designing personalized dev card</span>
+      </div>
+      <div class="loading-step">
+        <span class="step-icon">💾</span>
+        <span>Saving card for sharing</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" id="error-state">
+    <div class="error-box">
+      <span class="error-icon">⚠️</span>
+      <div class="error-content">
+        <div class="error-title">Card Generation Failed</div>
+        <div class="error-message" id="error-message">Something went wrong. Please try again.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result State -->
+  <div class="result-state" id="result-state">
+    <div class="result-toolbar">
+      <span class="result-label" id="result-label">Card generated successfully</span>
+      <div class="toolbar-actions">
+        <button class="btn-action" id="share-btn" onclick="shareCard()">
+          <span>⎘</span> Copy Link
+        </button>
+        <button class="btn-action" onclick="openCardTab()">
+          <span>↗</span> Open
+        </button>
+        <button class="btn-action" onclick="resetForm()">
+          <span>↺</span> New Card
+        </button>
+      </div>
+    </div>
+    <div class="card-wrapper">
+      <iframe id="card-iframe" title="Generated Dev Card" scrolling="no"></iframe>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p class="footer-text">
+      Built with FastAPI · Google ADK · Gemini 2.5 Flash · MCP ·
+      <a href="https://github.com" target="_blank">GitHub API</a>
+    </p>
+  </div>
+
+</div>
+
+<script>
+  const BACKEND_URL = window.__BACKEND_URL__ || 'http://localhost:8080';
+  let currentCardUrl = '';
+  let currentUsername = '';
+
+  // Enter key support
+  document.getElementById('username-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') generateCard();
+  });
+
+  function quickFill(username) {
+    document.getElementById('username-input').value = username;
+    document.getElementById('username-input').focus();
+  }
+
+  function showState(state) {
+    ['loading-state', 'error-state', 'result-state'].forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
+    if (state) document.getElementById(state).classList.add('active');
+  }
+
+  function setLoadingText(text) {
+    document.getElementById('loading-text').textContent = text;
+  }
+
+  async function generateCard() {
+    const input = document.getElementById('username-input');
+    const username = input.value.trim().replace(/^@/, '');
+
+    if (!username) {
+      input.focus();
+      input.style.borderColor = 'var(--accent3)';
+      setTimeout(() => input.style.borderColor = '', 1000);
+      return;
+    }
+
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-icon">⏳</span> Generating...';
+
+    currentUsername = username;
+    showState('loading-state');
+    setLoadingText(`Fetching @${username} from GitHub...`);
+
+    // Animate loading steps
+    const steps = document.querySelectorAll('.loading-step');
+    steps.forEach((s, i) => {
+      s.style.animationDelay = `${i * 0.2}s`;
+    });
+
+    try {
+      setLoadingText('Analyzing profile with AI...');
+
+      const resp = await fetch(`${BACKEND_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `Server error: ${resp.status}`);
+      }
+
+      const data = await resp.json();
+      currentCardUrl = `${BACKEND_URL}${data.card_url}`;
+
+      setLoadingText('Card ready! Rendering...');
+
+      // Show result
+      const iframe = document.getElementById('card-iframe');
+      iframe.srcdoc = data.card_html;
+
+      // Adjust iframe height after load
+      iframe.onload = () => {
+        try {
+          const h = iframe.contentDocument?.body?.scrollHeight;
+          if (h && h > 200) iframe.style.minHeight = (h + 20) + 'px';
+        } catch(_) {}
+      };
+
+      document.getElementById('result-label').textContent =
+        `Card generated for @${username}`;
+
+      showState('result-state');
+
+    } catch (err) {
+      document.getElementById('error-message').textContent =
+        err.message || 'Failed to generate card. Make sure the username is correct and the backend is running.';
+      showState('error-state');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-icon">⚡</span> Generate';
+    }
+  }
+
+  function shareCard() {
+    const btn = document.getElementById('share-btn');
+    navigator.clipboard.writeText(currentCardUrl).then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = '<span>✓</span> Copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<span>⎘</span> Copy Link';
+      }, 2000);
+    }).catch(() => {
+      // Fallback: select a prompt
+      prompt('Card URL:', currentCardUrl);
+    });
+  }
+
+  function openCardTab() {
+    if (currentCardUrl) window.open(currentCardUrl, '_blank');
+  }
+
+  function resetForm() {
+    showState(null);
+    document.getElementById('username-input').value = '';
+    document.getElementById('username-input').focus();
+    currentCardUrl = '';
+    currentUsername = '';
+  }
+</script>
+</body>
+</html>
